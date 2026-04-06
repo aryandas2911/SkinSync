@@ -29,7 +29,7 @@ export function InsightsCard({ insights = [], skinProfile }) {
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="bg-white rounded-[2rem] p-8 border border-white/60 shadow-sm space-y-6 h-full"
+      className="bg-white rounded-[2rem] p-8 border border-white/60 shadow-sm space-y-6"
     >
       <div className="flex items-center gap-2">
         <Fingerprint className="text-accent-teal" size={20} />

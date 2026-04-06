@@ -35,7 +35,7 @@ export function SafetyScoreCard({ score = 0, status, hasRoutine = false, isLoadi
               <circle
                 cx="80"
                 cy="80"
-                r="40"
+                r="55"
                 fill="transparent"
                 stroke="#F0EFEA"
                 strokeWidth="10"
@@ -43,7 +43,7 @@ export function SafetyScoreCard({ score = 0, status, hasRoutine = false, isLoadi
               <motion.circle
                 cx="80"
                 cy="80"
-                r="40"
+                r="55"
                 fill="transparent"
                 stroke="currentColor"
                 strokeWidth="10"
@@ -66,7 +66,7 @@ export function SafetyScoreCard({ score = 0, status, hasRoutine = false, isLoadi
                  </motion.div>
                ) : (
                  <>
-                   <span className="text-2xl font-serif font-black text-text">{score}%</span>
+                   <span className="text-4xl font-serif font-black text-text">{score}%</span>
                  </>
                )}
             </div>

@@ -7,6 +7,7 @@ import { SafetyScoreCard, DailyRoutineCard } from './RoutineCards'
 import ScanHistoryCard from './ScanHistoryCard'
 import { SkinFactCard, InsightsCard } from './InsightCards'
 import FloatingChatbot from './FloatingChatbot'
+import Footer from '../Footer'
 
 // Modals
 import SettingsModal from '../modals/SettingsModal'
@@ -244,7 +245,7 @@ export default function DashboardLayout({ onboardingComplete = false, onComplete
                    <ShieldCheck className="text-primary" size={40} />
                 </div>
                 
-                <div className="space-y-4">
+                <div className="space-y-5">
                   <h1 className="font-serif text-4xl md:text-5xl font-bold text-text">
                     Hello, {userProfile?.userName || 'there'} 👋
                   </h1>
@@ -264,22 +265,24 @@ export default function DashboardLayout({ onboardingComplete = false, onComplete
                 </motion.button>
              </motion.div>
           </div>
+          <Footer />
        </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[#F7F6F3] pb-20">
-      <DashboardNavbar 
-        onLogout={onLogout} 
-        onNavigate={onNavigate} 
-        onOpenSettings={() => toggleModal('settings', true)}
-      />
+    <div className="min-h-screen bg-[#F7F6F3] flex flex-col">
+      <div className="flex-1 pb-20">
+        <DashboardNavbar 
+          onLogout={onLogout} 
+          onNavigate={onNavigate} 
+          onOpenSettings={() => toggleModal('settings', true)}
+        />
       
       <main className="max-w-7xl mx-auto pt-32 px-6 md:px-8 space-y-8">
         {/* Header Section */}
         <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div className="space-y-2">
+          <div className="space-y-2 ml-4">
             <motion.h1 
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -385,6 +388,8 @@ export default function DashboardLayout({ onboardingComplete = false, onComplete
       />
 
       <FloatingChatbot userProfile={userProfile} />
+      </div>
+      <Footer />
     </div>
   )
 }
