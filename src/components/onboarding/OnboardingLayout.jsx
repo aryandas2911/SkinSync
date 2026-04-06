@@ -4,7 +4,9 @@ import { Shield, LayoutDashboard, LogOut } from 'lucide-react'
 import ProgressBar from './ProgressBar'
 import StepCard from './StepCard'
 import ChipSelector from './ChipSelector'
+import { SkinTypeHelperToggle, SkinTypeHelperContent } from './SkinTypeHelper'
 import { storage } from '../../utils/storage'
+import { Link } from 'react-router-dom'
 
 const STEPS = [
   {
@@ -41,6 +43,7 @@ const STEPS = [
 
 export default function OnboardingLayout({ onComplete, onLogout }) {
   const [currentStepIdx, setCurrentStepIdx] = useState(0)
+  const [isHelperOpen, setIsHelperOpen] = useState(false)
   const [data, setData] = useState(() => {
     const user = storage.getUser()
     return user?.skinProfile?.skinType ? user.skinProfile : {
@@ -110,14 +113,14 @@ export default function OnboardingLayout({ onComplete, onLogout }) {
         <div className="flex items-center gap-6">
            <button className="text-sm font-bold text-text-muted hover:text-text transition-all flex items-center gap-2">
               <LayoutDashboard size={18} />
-              Dashboard
+              <Link to="/dashboard">Dashboard</Link>
            </button>
            <button 
              onClick={onLogout}
              className="text-sm font-bold text-text-muted hover:text-text transition-all flex items-center gap-2"
            >
               <LogOut size={18} />
-              Logout
+              <Link to="/login">Logout</Link>
            </button>
         </div>
       </nav>
@@ -145,8 +148,18 @@ export default function OnboardingLayout({ onComplete, onLogout }) {
               otherValue={data.other[currentStep.id] || ''}
               onOtherChange={handleOtherChange}
             />
+            
+            {currentStep.id === 'skinType' && (
+              <SkinTypeHelperToggle isOpen={isHelperOpen} onToggle={() => setIsHelperOpen(!isHelperOpen)} />
+            )}
           </StepCard>
         </AnimatePresence>
+
+        {currentStep.id === 'skinType' && (
+          <div className="w-full max-w-lg mt-5 px-10 bg-white rounded-xl py-4">
+            <SkinTypeHelperContent isOpen={isHelperOpen} />
+          </div>
+        )}
       </div>
     </div>
   )

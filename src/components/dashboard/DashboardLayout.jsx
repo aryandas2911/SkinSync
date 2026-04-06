@@ -6,6 +6,7 @@ import HeroScanCard from './HeroScanCard'
 import { SafetyScoreCard, DailyRoutineCard } from './RoutineCards'
 import ScanHistoryCard from './ScanHistoryCard'
 import { SkinFactCard, InsightsCard } from './InsightCards'
+import FloatingChatbot from './FloatingChatbot'
 
 // Modals
 import SettingsModal from '../modals/SettingsModal'
@@ -382,6 +383,8 @@ export default function DashboardLayout({ onboardingComplete = false, onComplete
         onClose={() => toggleModal('routineSummary', false)}
         analysis={routineAnalysis}
       />
+
+      <FloatingChatbot userProfile={userProfile} />
     </div>
   )
 }

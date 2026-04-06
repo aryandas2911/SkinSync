@@ -45,7 +45,7 @@ export default function StepCard({
           </motion.p>
         </header>
 
-        <div className="min-h-[200px] flex items-center justify-center">
+        <div className="min-h-[200px] flex flex-col items-center justify-center w-full">
            {children}
         </div>
 
