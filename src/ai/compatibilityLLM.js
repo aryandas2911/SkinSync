@@ -253,9 +253,10 @@ export const generateRoutineReport = async (routineData, profile) => {
   const reactivity = profile?.reactivity || 'Normal';
   
   // Format the morning and night product data for the prompt
-  const formatList = (items) => items.map(p => 
-    `- ${p.productName}: [Ingredients: ${p.ingredients?.join(', ') || 'None'}] (Current Safety: ${p.score}/100, Verdict: ${p.verdict})`
-  ).join('\n');
+  const formatList = (items) => items.map(p => {
+    const ingList = (p.ingredients || []).map(i => typeof i === 'string' ? i : (i.name || 'Unknown')).join(', ');
+    return `- ${p.productName}: [Ingredients: ${ingList || 'None'}] (Current Safety: ${p.score}/100, Verdict: ${p.verdict})`;
+  }).join('\n');
 
   const morningList = formatList(routineData.morning);
   const nightList = formatList(routineData.night);

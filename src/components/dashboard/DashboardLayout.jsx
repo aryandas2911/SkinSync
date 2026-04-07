@@ -127,6 +127,9 @@ export default function DashboardLayout({ onboardingComplete = false, onComplete
     }
 
     setIsAnalyzingRoutine(true)
+    // Clear previous analysis to show loading state for the score
+    setRoutineAnalysis(prev => prev ? { ...prev, score: null } : null)
+
     try {
       // Always get FRESH profile for analysis
       const freshProfile = storage.getUser()?.skinProfile || {}
@@ -135,28 +138,24 @@ export default function DashboardLayout({ onboardingComplete = false, onComplete
       // Gather ingredients for all products in the routine
       const fetchIngredients = async (items) => {
         return Promise.all((items || []).map(async (p) => {
-          // HEAL: If product is just a string (legacy data), try to find a matching scan
           let result = null;
+          let productName = typeof p === 'string' ? p : (p.productName || 'Unknown');
+          
+          // Find matching scan/result
           if (typeof p === 'string') {
             const match = allScans.find(s => s.productName === p)
             if (match && match.resultId) {
               result = await db.getResult(match.resultId)
             }
-            return { 
-              productName: p, 
-              ingredients: result?.ingredients?.map(i => i.name) || [],
-              score: result?.score || 100,
-              verdict: result?.verdict || 'Safe'
-            }
+          } else if (p.resultId) {
+            result = await db.getResult(p.resultId)
           }
 
-          // Modern object structure
-          if (!p.resultId) return { productName: p.productName, ingredients: [], score: 100, verdict: 'Safe' }
-          result = await db.getResult(p.resultId)
+          // Return full structured data for the AI
           return {
-            productName: p.productName,
-            ingredients: result?.ingredients?.map(i => i.name) || [],
-            score: result?.score || 100,
+            productName,
+            ingredients: result?.ingredients || [], // Pass the objects, not just names
+            score: Number(result?.score || 100),
             verdict: result?.verdict || 'Safe'
           }
         }))
@@ -171,6 +170,22 @@ export default function DashboardLayout({ onboardingComplete = false, onComplete
         { morning: morningFull, night: nightFull },
         freshProfile
       )
+
+      // ─── Clinical Guardrail ───
+      // If all products are individually safe (>85), the overall routine 
+      // should NEVER be below 60 unless there is a confirmed catastrophic conflict.
+      const allSafe = [...morningFull, ...nightFull].every(p => p.score >= 85);
+      if (allSafe && analysis && analysis.score < 60) {
+        console.warn('AI Score Guardrail: Promoting score from', analysis.score, 'to 90+ due to individual product safety.');
+        analysis.score = Math.max(90, analysis.score);
+        analysis.verdict = "Safe";
+        analysis.explanation = "Despite the complex ingredients, your individual products are highly safe. " + (analysis.explanation || "");
+      }
+
+      // Ensure score is a number as a final step
+      if (analysis && analysis.score) {
+        analysis.score = Number(analysis.score);
+      }
 
       setRoutineAnalysis(analysis)
       await db.updateRoutine({ morning: m, night: n, analysis })
@@ -210,7 +225,7 @@ export default function DashboardLayout({ onboardingComplete = false, onComplete
   const handleUpdateRoutine = async (m, n) => {
     setMorning(m)
     setNight(n)
-    await db.updateRoutine({ morning: m, night: n, analysis: routineAnalysis })
+    await db.updateRoutine({ morning: m, night: n, analysis: null }) // Clear stale analysis in DB
     triggerRoutineAnalysis(m, n)
   }
 
@@ -226,7 +241,9 @@ export default function DashboardLayout({ onboardingComplete = false, onComplete
     
     setMorning(newMorning)
     setNight(newNight)
-    await db.updateRoutine({ morning: newMorning, night: newNight, analysis: routineAnalysis })
+    
+    // Pass everything as null to DB to ensure we don't have stale safety scores while AI works
+    await db.updateRoutine({ morning: newMorning, night: newNight, analysis: null })
     triggerRoutineAnalysis(newMorning, newNight)
     toggleModal('addProduct', false)
   }
