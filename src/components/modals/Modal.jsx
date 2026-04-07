@@ -52,7 +52,7 @@ export default function Modal({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ type: 'spring', duration: 0.5, bounce: 0.3 }}
-            className={`relative w-full ${sizes[size]} bg-white rounded-[2.5rem] shadow-[0_40px_100px_rgba(0,0,0,0.15)] border border-white/60 overflow-hidden flex flex-col`}
+            className={`relative w-full ${sizes[size]} max-h-[calc(100vh-3rem)] bg-white rounded-[2.5rem] shadow-[0_40px_100px_rgba(0,0,0,0.15)] border border-white/60 overflow-hidden flex flex-col`}
           >
             {/* Header */}
             <div className="px-8 py-6 border-b border-border/40 flex items-center justify-between bg-white/50 backdrop-blur-md sticky top-0 z-20">

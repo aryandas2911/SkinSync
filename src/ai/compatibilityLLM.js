@@ -160,6 +160,88 @@ Return RAW JSON only. No markdown. No conversational text.`;
 export const generateExplanation = async () => "Deprecated";
 
 /**
+ * Generates a lightweight AI comparison between two scanned products.
+ * Returns structured JSON with insight, winner, and bullet reasons.
+ */
+export const generateComparisonInsight = async (product1, product2, profile) => {
+  const { llm } = await loadModels();
+
+  const skinType = profile?.skinType || 'normal';
+  const concerns = profile?.concerns?.length ? profile.concerns.join(', ') : 'None';
+  const sensitivities = profile?.sensitivities?.length ? profile.sensitivities.join(', ') : 'None';
+  const actives = profile?.actives?.length ? profile.actives.join(', ') : 'None';
+  const reactivity = profile?.reactivity || 'Normal';
+
+  const scoreDiff = Math.abs((product1.score || 0) - (product2.score || 0));
+  const isTie = scoreDiff < 5;
+
+  const prompt = `You are a clinical dermatologist AI providing a concise comparison of two skincare products for a specific user.
+
+USER PROFILE:
+- Skin Type: ${skinType}
+- Concerns: ${concerns}
+- Sensitivities: ${sensitivities}
+- Current Actives: ${actives}
+- Reactivity: ${reactivity}
+
+PRODUCT 1: "${product1.productName}"
+- Score: ${product1.score}/100
+- Verdict: ${product1.verdict}
+- Ingredients: ${product1.ingredients?.map(i => typeof i === 'string' ? i : i.name).join(', ') || 'Unknown'}
+
+PRODUCT 2: "${product2.productName}"
+- Score: ${product2.score}/100
+- Verdict: ${product2.verdict}
+- Ingredients: ${product2.ingredients?.map(i => typeof i === 'string' ? i : i.name).join(', ') || 'Unknown'}
+
+TASK:
+1. Write a SHORT comparison paragraph (3-4 lines max) explaining key differences and which product better fits this user's profile.
+2. Determine the winner: ${isTie ? '"tie" since their scores are very close' : 'the product with the higher score'}.
+3. Provide 3-5 bullet-point reasons explaining WHY the winner is better (or key differences if tie).
+
+ANTI-GENERIC RULE: If your explanation could apply to any user, REWRITE it to include specific references to this user's ${skinType} skin, ${concerns}, ${sensitivities}. Every bullet MUST reference either a specific ingredient or a specific aspect of this user's profile.
+
+RETURN a strict JSON object:
+{
+  "insight": "<3-4 line comparison paragraph>",
+  "winner": "product1 | product2 | tie",
+  "reasons": ["<Bullet referencing specific ingredient + profile trait>", "...", "..."]
+}
+
+Return RAW JSON only. No markdown. No conversational text.`;
+
+  try {
+    console.log('AI Compare Engine: Generating comparison insight...');
+    const response = await llm.generate({
+      prompt: prompt,
+      temperature: 0.1,
+      max_tokens: 600
+    });
+
+    const rawText = typeof response === 'string' ? response : (response.text || response.content || '');
+    const jsonStr = rawText.replace(/```json/gi, '').replace(/```/g, '').trim();
+
+    const parsed = JSON.parse(jsonStr);
+
+    return {
+      insight: parsed.insight || 'Could not generate comparison.',
+      winner: parsed.winner || 'tie',
+      reasons: Array.isArray(parsed.reasons) ? parsed.reasons.slice(0, 5) : []
+    };
+  } catch (error) {
+    console.error('AI Comparison Error:', error);
+    return {
+      insight: `Based on their safety scores, ${product1.score >= product2.score ? product1.productName : product2.productName} appears to be the better match for your ${skinType} skin profile.`,
+      winner: product1.score > product2.score ? 'product1' : product2.score > product1.score ? 'product2' : 'tie',
+      reasons: [
+        `${product1.productName} scored ${product1.score}/100 vs ${product2.productName} at ${product2.score}/100`,
+        'Full AI comparison could not be generated at this time.'
+      ]
+    };
+  }
+};
+
+/**
  * analyzes a full routine (multiple products) against profile
  */
 export const generateRoutineReport = async (routineData, profile) => {

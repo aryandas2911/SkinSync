@@ -6,6 +6,7 @@ import HeroScanCard from './HeroScanCard'
 import { SafetyScoreCard, DailyRoutineCard } from './RoutineCards'
 import ScanHistoryCard from './ScanHistoryCard'
 import { SkinFactCard, InsightsCard } from './InsightCards'
+import CompareSection from './CompareSection'
 import FloatingChatbot from './FloatingChatbot'
 import Footer from '../Footer'
 
@@ -16,6 +17,7 @@ import UploadModal from '../modals/UploadModal'
 import RoutineModal from '../modals/RoutineModal'
 import AddProductModal from '../modals/AddProductModal'
 import RoutineSummaryModal from '../modals/RoutineSummaryModal'
+import CompareModal from '../modals/CompareModal'
 
 import { generateRoutineReport } from '../../ai/compatibilityLLM'
 
@@ -29,12 +31,14 @@ export default function DashboardLayout({ onboardingComplete = false, onComplete
     upload: false,
     routine: false,
     addProduct: false,
-    routineSummary: false
+    routineSummary: false,
+    compare: false
   })
   
   const [morning, setMorning] = useState([])
   const [night, setNight] = useState([])
   const [scans, setScans] = useState([])
+  const [allScans, setAllScans] = useState([])
   const [stats, setStats] = useState({ totalScans: 0, weeklyScans: 0 })
   const [userProfile, setUserProfile] = useState(storage.getUser())
   const [addSection, setAddSection] = useState('Morning')
@@ -46,6 +50,7 @@ export default function DashboardLayout({ onboardingComplete = false, onComplete
     const loadDashboardData = async () => {
       setUserProfile(storage.getUser())
       const recentScans = await db.getAllScans()
+      setAllScans(recentScans)
       setScans(recentScans.slice(0, 5))
 
       const currentRoutine = await db.getRoutine()
@@ -326,6 +331,10 @@ export default function DashboardLayout({ onboardingComplete = false, onComplete
                    onSelect={(id) => onStartAnalysis && onStartAnalysis(id)} 
                    onDelete={handleDeleteScan}
                  />
+                <CompareSection
+                  scanCount={allScans.length}
+                  onCompare={() => toggleModal('compare', true)}
+                />
              </div>
           </div>
 
@@ -385,6 +394,12 @@ export default function DashboardLayout({ onboardingComplete = false, onComplete
         isOpen={activeModals.routineSummary}
         onClose={() => toggleModal('routineSummary', false)}
         analysis={routineAnalysis}
+      />
+
+      <CompareModal
+        isOpen={activeModals.compare}
+        onClose={() => toggleModal('compare', false)}
+        userProfile={userProfile}
       />
 
       <FloatingChatbot userProfile={userProfile} />
