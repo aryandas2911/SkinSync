@@ -1,213 +1,244 @@
-# SkinSync — AI Skincare Analysis System
+# SkinSync 🧴🔍
 
-SkinSync is a **privacy-first, AI-powered skincare scanner** that analyzes product ingredients and provides personalized insights based on your skin type, sensitivities, and history.
+**SkinSync** is an AI-powered skincare analysis web app that scans product ingredient labels and determines whether they are compatible with a user’s skin type.
 
-Built with a **local-first architecture**, the app minimizes backend dependency while delivering fast, intelligent results using OCR + LLM.
+It uses **local AI models running directly in the browser** to extract ingredient data, analyze ingredient interactions, and generate personalized skincare insights.
 
----
+Built for **HackXtreme Hackathon at GeeksforGeeks, Noida**.
 
-# Features
-
-## Smart Product Scanning
-
-* Capture or upload product images
-* Extract ingredients using OCR (VLM-based)
-* Automatically parse ingredient lists
-
-## AI-Powered Analysis
-
-* Ingredient breakdown with benefits
-* Conflict detection (ingredient interactions)
-* Personalized warnings based on user profile
-* Final safety verdict + score
-
-## User Personalization
-
-* Skin type detection (onboarding)
-* Sensitivity tracking (e.g. fragrance, acne triggers)
-* Persistent user profile (stored locally)
-
-## Local-First Storage
-
-* IndexedDB for scans & results
-* localStorage for preferences & theme
-* Works with minimal backend dependency
-
-## PWA Ready (optional)
-
-* Installable app experience
-* Offline-friendly UI
+🌐 **Live Demo:**  
+https://skin-sync-orcin.vercel.app/
 
 ---
 
-# Tech Stack
+# 🚀 Features
 
-### Frontend
+## 📷 Ingredient Scanner
+Users can analyze products using three input methods:
 
-* React (Vite)
-* Tailwind CSS
+- Upload an ingredient label image
+- Capture an image using the device camera
+- Paste ingredient text manually
 
-### AI Layer
-
-* RunAnywhere SDK (OCR + VLM + LLM)
-* Local model compatibility support
-
-### Storage
-
-* IndexedDB (via `db.js`)
-* localStorage
+The app extracts the ingredient list using **OCR and vision models running locally**.
 
 ---
 
-# Project Structure
+## 🧑‍⚕️ Personalized Skin Profile
 
-```bash
-src/
-│
-├── ai/                 # AI integration (OCR + LLM logic)
-│   ├── compatibilityLLM.js
-│   ├── modelLoader.js
-│   ├── runanywhere.js
-│   └── vlmOCR.js
-│
-├── components/        # Reusable UI components
-├── pages/             # Main app screens (Dashboard, Results, etc.)
-├── hooks/             # Custom React hooks
-├── services/          # Business logic & API abstractions
-├── utils/             # Core utilities
-│   ├── db.js          # IndexedDB logic
-│   ├── storage.js     # localStorage helpers
-│   ├── ingredientParser.js
-│   └── promptTemplates.js
-│
-├── assets/            # Static assets
-│
-├── App.jsx            # Root component
-├── main.jsx           # Entry point
-└── index.css          # Global styles
+Users create a profile including:
+
+- **Skin Type** (Oily / Dry / Combination / Sensitive)
+- **Ingredient Sensitivities**
+- **Current Active Ingredients** (Retinol, AHA/BHA, etc.)
+
+This profile powers **personalized compatibility analysis**.
+
+---
+
+## 🧠 AI Ingredient Intelligence
+
+SkinSync decodes complex **INCI ingredient lists** and provides:
+
+- Ingredient explanations
+- Skincare benefits
+- Potential irritants
+- Skin type compatibility
+
+---
+
+## ⚠️ Ingredient Interaction Detection
+
+The system identifies potentially harmful ingredient combinations such as:
+
+- Retinol + AHA/BHA
+- Retinol + Benzoyl Peroxide
+- Vitamin C + certain actives
+
+This helps users **avoid routines that may damage their skin barrier**.
+
+---
+
+## 🧴 Product Comparison
+
+Users can compare **two skincare products** to determine:
+
+- Which product is safer
+- Ingredient differences
+- Interaction risks
+
+---
+
+## 📋 Skincare Routine Analysis
+
+SkinSync analyzes a user’s **entire skincare routine** to detect conflicts between products and active ingredients.
+
+---
+
+## 🚨 Personalized Warnings
+
+If a product contains ingredients the user marked as sensitivities, SkinSync flags them immediately.
+
+Example:
+
+> ⚠ **Contains Fragrance**  
+> You marked fragrance as a sensitivity.
+
+---
+
+## ✅ Final Safety Verdict
+
+Each product receives a clear verdict:
+
+- 🟢 **Safe**
+- 🟡 **Use With Caution**
+- 🔴 **Avoid**
+
+This allows users to make decisions **quickly and confidently**.
+
+---
+
+# 🧠 How It Works
+
+SkinSync runs **AI inference locally in the browser** using the RunAnywhere SDK.
+
+```
+Image / Text Input
+↓
+Vision Model + OCR
+↓
+Ingredient Extraction
+↓
+Ingredient Database Matching
+↓
+LLM Ingredient Analysis
+↓
+Interaction Detection
+↓
+User Profile Compatibility Check
+↓
+Safety Verdict
 ```
 
+All processing happens **client-side**, ensuring user privacy.
+
 ---
 
-# Getting Started
+# 🏗 Tech Stack
 
-## 1. Clone the repo
+## Frontend
+- React + Vite
+- TailwindCSS
+- Framer Motion
+- Lucide React Icons
+
+## AI / ML
+- RunAnywhere SDK
+- Vision Language Model (VLM)
+- Local LLM for reasoning
+- Tesseract.js for OCR
+
+## Data
+- Ingredient database
+- Interaction rules dataset
+
+## Deployment
+- Vercel
+
+---
+
+# ⚙️ Installation
+
+1. Clone the repository:
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/aryandas2911/SkinSync.git
+```
+
+2. Navigate to the project directory:
+```bash
 cd skinsync
 ```
 
----
-
-## 2. Install dependencies
-
+3. Install dependencies:
 ```bash
 npm install
 ```
 
----
-
-## 3. Run the app locally
-
+4. Start the development server:
 ```bash
 npm run dev
 ```
 
 ---
 
-## 4. Build for production
-
-```bash
-npm run build
-```
-
----
-
-# How It Works
-
-### 1. Scan / Upload
-
-User captures or uploads an image of a product.
-
-### 2. OCR Extraction
-
-* `vlmOCR.js` extracts ingredient text using a vision-language model
-
-### 3. Ingredient Parsing
-
-* `ingredientParser.js` cleans and structures ingredients
-
-### 4. AI Analysis
-
-* `compatibilityLLM.js` evaluates:
-
-  * ingredient safety
-  * conflicts
-  * personalization
-
-### 5. Result Generation
-
-User sees:
-
-* Ingredient breakdown
-* Conflicts
-* Warnings
-* Final verdict
+# 🧪 Example Workflow
+- User completes onboarding and sets a skin profile.
+- User scans a product ingredient label.
+- OCR extracts ingredient text locally.
+- Vision and language models interpret ingredients.
+- Interaction engine checks for conflicts.
+- Compatibility is evaluated against the user profile.
+- The app generates a final safety verdict.
 
 ---
 
-# Data Storage Strategy
+# 📸 Screenshots
 
-| Data Type        | Storage      |
-| ---------------- | ------------ |
-| User profile     | localStorage |
-| Scan history     | IndexedDB    |
-| AI results       | IndexedDB    |
+Landing Page
 
----
+![Landing Page](screenshots/landingpage.png)
 
-# Privacy
+Dashboard
 
-* No mandatory backend
-* No user data stored on servers
-* All scans & preferences remain on-device (unless API is used)
+![Dashboard](screenshots/dashboard.png)
+
+Product Analysis Results
+
+![Results](screenshots/results.png)
 
 ---
 
-# Deployed Link
+# 🔒 Privacy First
 
-Link: https://skin-sync-orcin.vercel.app/
----
+SkinSync is designed to be privacy-focused.
 
-# Notes
+AI models run locally in the browser
+No ingredient images are uploaded to external servers
+User skin profile is stored locally on the device
 
-* AI features require internet if using API-based models
-* Fully offline mode requires locally hosted models
-
----
-
-# Future Improvements
-
-* Offline AI inference (WebGPU / local models)
-* Multi-device sync (optional backend)
-* Advanced ingredient scoring system
-* Dermatology-grade recommendations
+This ensures sensitive skin data remains private.
 
 ---
 
-# Contributing
+# 💰 Business Model
 
-Pull requests are welcome. For major changes, open an issue first.
+SkinSync follows a multi-tier revenue model.
+
+1. Freemium Tier: Basic ingredient scanning and compatibility checks.
+2. Premium Subscription: Advanced routine analysis and unlimited scans.
+3. Dermatology Clinic SaaS: White-label tool for dermatologists to analyze patient products.
+4. Skincare Brand API: Brands integrate SkinSync to check product compatibility for customers.
+5. Affiliate Product Recommendations: Suggest safer alternatives when a product is not suitable.
 
 ---
 
-# License
+# 🚀 Future Improvements
 
-MIT License
+- Skin condition detection using computer vision
+- Real-time product barcode scanning
+- Ingredient risk scoring
+- Multi-product routine optimization
+- Dermatologist integration tools
 
 ---
 
-# Vision
+# 👥 Team
 
-SkinSync aims to make skincare **transparent, personalized, and trustworthy** by decoding complex ingredient lists into actionable insights — instantly.
+Built for HackXtreme Hackathon at GeeksforGeeks, Noida
+
+Team Members:
+- Sandra Rosa Prince
+- Bhumika Bindal
+- Tanushree Dhawan
+- Aryan Das
